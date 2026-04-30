@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manu's Board Editor</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="app">
+
+    <aside class="sidebar">
+      <h1>Manu's Board Editor</h1>
+      <p class="muted">Generic 8×8 board editor with teams, portraits, movement, and captures.</p>
+
+      <section class="panel-section">
+        <h2>Tool</h2>
+        <div class="button-grid two-cols">
+          <button class="tool-btn active" data-tool="tile">Paint Tile</button>
+          <button class="tool-btn" data-tool="piece">Place / Move Piece</button>
+          <button class="tool-btn" data-tool="mark">Corner Mark</button>
+          <button class="tool-btn" data-tool="erase">Erase Cell</button>
+        </div>
+      </section>
+
+      <button id="standardSetupBtn" class="primary">Standard Setup</button>
+
+      <section class="panel-section">
+        <h2>Tiles</h2>
+        <div class="button-grid two-cols">
+          <button class="tile-btn active" data-tile="neutral">Neutral</button>
+          <button class="tile-btn" data-tile="water">Water</button>
+          <button class="tile-btn" data-tile="fire">Fire</button>
+          <button class="tile-btn" data-tile="forest">Forest</button>
+          <button class="tile-btn" data-tile="sand">Sand</button>
+          <button class="tile-btn" data-tile="stone">Stone</button>
+        </div>
+      </section>
+
+      <section class="panel-section marker-box">
+        <h2>Chakra Marker</h2>
+
+        <label for="cornerMarkInput">Chakra</label>
+        <input id="cornerMarkInput" type="text" maxlength="3" placeholder="e.g. 1, 2, 3" />
+
+        <div class="button-grid three-cols top-gap">
+          <button class="mark-color-btn active" data-mark-color="neutral">Neutral</button>
+          <button class="mark-color-btn" data-mark-color="blue">Blue</button>
+          <button class="mark-color-btn" data-mark-color="red">Red</button>
+        </div>
+      </section>
+
+      <section class="panel-section condition-box">
+        <h2>Conditions</h2>
+
+        <div class="button-grid three-cols">
+          <button class="condition-btn" data-condition="blinded">Blinded</button>
+          <button class="condition-btn" data-condition="poisoned">Poisoned</button>
+          <button class="condition-btn" data-condition="burnt">Burnt</button>
+        </div>
+
+        <button id="clearConditionBtn" class="top-gap">Clear Condition</button>
+      </section>
+
+      <section class="panel-section">
+        <h2>Save / Load</h2>
+        <label for="jsonBox">Board JSON</label>
+        <textarea id="jsonBox" placeholder="Board data will appear here..."></textarea>
+
+        <div class="button-row two-cols top-gap">
+          <button id="exportBtn">Export</button>
+          <button id="importBtn">Import</button>
+        </div>
+      </section>
+
+      <section class="panel-section">
+        <h2>Jutsu Spreadsheet</h2>
+        <p class="muted small">Upload a CSV with character, jutsu, description, and cost.</p>
+        <input id="jutsuCsvInput" type="file" accept=".csv" />
+      </section>
+
+      <section class="panel-section">
+        <h2>Tile Descriptions</h2>
+        <div id="tileDescriptionList" class="description-list"></div>
+      </section>
+
+    </aside>
+
+    <main class="workspace">
+      <header class="topbar">
+        <div class="topbar-left">
+          <div><strong>Board:</strong> 8 × 8</div>
+          <div class="muted">Click a square to apply the current tool. In piece mode: empty = place, piece = pick up /
+            move / capture.</div>
+        </div>
+
+        <div class="status-box topbar-status">
+          <div><strong>Mode:</strong> <span id="modeReadout">Paint Tile</span></div>
+          <div><strong>Selected Piece:</strong> <span id="pieceReadout">King</span></div>
+          <div><strong>Selected Team:</strong> <span id="teamReadout">White</span></div>
+          <div><strong>Picked Up:</strong> <span id="movingReadout">None</span></div>
+          <div><strong>Turn:</strong> <span id="turnReadout">White</span></div>
+        </div>
+      </header>
+
+      <section class="board-area">
+        <div class="play-area">
+          <div class="board-column">
+            <div class="board-shell">
+              <div id="board" class="board"></div>
+            </div>
+
+            <section class="board-controls-panel">
+              <section class="board-control-section">
+                <h2>Piece Type</h2>
+                <div class="button-grid six-cols piece-selector">
+                  <button class="piece-btn active" data-piece="king"><span class="piece-shape">♔</span> King</button>
+                  <button class="piece-btn" data-piece="queen"><span class="piece-shape">♕</span> Queen</button>
+                  <button class="piece-btn" data-piece="bishop"><span class="piece-shape">♗</span> Bishop</button>
+                  <button class="piece-btn" data-piece="knight"><span class="piece-shape">♘</span> Knight</button>
+                  <button class="piece-btn" data-piece="rook"><span class="piece-shape">♖</span> Rook</button>
+                  <button class="piece-btn" data-piece="pawn"><span class="piece-shape">♙</span> Pawn</button>
+                </div>
+              </section>
+
+              <section class="board-control-section">
+                <h2>Team</h2>
+                <div class="button-grid two-cols">
+                  <button class="team-btn active" data-team="white">White</button>
+                  <button class="team-btn" data-team="black">Black</button>
+                </div>
+              </section>
+            </section>
+          </div>
+
+
+
+          <div class="team-side">
+            <section class="team-strip">
+              <h3 class="team-strip-title">Black Team</h3>
+              <div id="blackTray" class="team-tray"></div>
+            </section>
+
+            <section class="team-strip">
+              <h3 class="team-strip-title">White Team</h3>
+              <div id="whiteTray" class="team-tray"></div>
+            </section>
+
+            <section class="side-controls-row">
+              <section class="clock-box">
+                <h3 class="team-strip-title">Clock</h3>
+
+                <div class="clock-line"><strong>Black:</strong> <span id="blackTimerReadout">Off</span></div>
+                <div class="clock-line"><strong>White:</strong> <span id="whiteTimerReadout">Off</span></div>
+
+                <label for="timerSelect">Time per player</label>
+                <select id="timerSelect">
+                  <option value="0">Off</option>
+                  <option value="30">30 sec</option>
+                  <option value="60">60 sec</option>
+                  <option value="120">120 sec</option>
+                  <option value="300">5 min</option>
+                </select>
+
+                <button id="passTurnBtn">Pass Turn</button>
+              </section>
+
+              <section class="condition-description-box">
+                <h3 class="team-strip-title">Condition Descriptions</h3>
+                <div id="conditionDescriptionList" class="description-list"></div>
+              </section>
+            </section>
+          </div>
+
+        </div>
+  </div>
+  </section>
+  </main>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
